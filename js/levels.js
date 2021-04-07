@@ -2,7 +2,7 @@ levels = [
     {
         levelIndex: 1,
         levelName: "Cargo Bay",
-        snake: {gridX: 10, gridY: 15, direction: 'D', startingSize: 6},
+        snake: {gridX: 21, gridY: 21, direction: 'D', startingSize: 6},
         door: {gridX: 59, gridY: 59},
         enemies: {
             soldiers: [
@@ -25,7 +25,7 @@ levels = [
     {
         levelIndex: 2,
         levelName: "Weapons Storage",
-        snake: {gridX: 10, gridY: 10, direction: 'D', startingSize: 8},
+        snake: {gridX: 21, gridY: 21, direction: 'D', startingSize: 8},
         door: {gridX: 59, gridY: 59},
         enemies: {
             soldiers: [
@@ -34,13 +34,16 @@ levels = [
                 {gridX: 29, gridY: 1, orientation: 180}
             ],
             cameras: [
+                {gridX: 5, gridY: 7, orientation: 0},
+                {gridX: 50, gridY: 50, orientation: 270},
+                {gridX: 30, gridY: 25, orientation: 75}
             ],
             mines: [
             ]
         },
         keyCards: [
             {gridX: 15, gridY: 7},
-            {gridX: 51, gridY: 0},
+            {gridX: 51, gridY: 8},
             {gridX: 20, gridY: 25},
             {gridX: 15, gridY: 45}
         ]
@@ -48,7 +51,7 @@ levels = [
     {
         levelIndex: 3,
         levelName: "Mine Field",
-        snake: {gridX: 10, gridY: 5, direction: 'D', startingSize: 11},
+        snake: {gridX: 21, gridY: 21, direction: 'D', startingSize: 11},
         door: {gridX: 59, gridY: 59},
         enemies: {
             soldiers: [
@@ -57,6 +60,9 @@ levels = [
                 {gridX: 29, gridY: 29, orientation: 180}
             ],
             cameras: [
+                {gridX: 5, gridY: 7, orientation: 0},
+                {gridX: 50, gridY: 50, orientation: 270},
+                {gridX: 30, gridY: 25, orientation: 75}
             ],
             mines: [
             ]
@@ -71,7 +77,7 @@ levels = [
     {
         levelIndex: 4,
         levelName: "Hangar Basement",
-        snake: {gridX: 10, gridY: 5, direction: 'D', startingSize: 15},
+        snake: {gridX: 21, gridY: 21, direction: 'D', startingSize: 15},
         door: {gridX: 59, gridY: 59},
         enemies: {
             soldiers: [
@@ -80,6 +86,9 @@ levels = [
                 {gridX: 29, gridY: 29, orientation: 180}
             ],
             cameras: [
+                {gridX: 5, gridY: 7, orientation: 0},
+                {gridX: 50, gridY: 50, orientation: 270},
+                {gridX: 30, gridY: 25, orientation: 75}
             ],
             mines: [
             ]
@@ -94,7 +103,7 @@ levels = [
     {
         levelIndex: 5,
         levelName: "Hangar",
-        snake: {gridX: 10, gridY: 5, direction: 'D', startingSize: 20},
+        snake: {gridX: 21, gridY: 21, direction: 'D', startingSize: 20},
         door: {gridX: 59, gridY: 59},
         enemies: {
             soldiers: [
@@ -103,6 +112,9 @@ levels = [
                 {gridX: 29, gridY: 29, orientation: 180}
             ],
             cameras: [
+                {gridX: 5, gridY: 7, orientation: 0},
+                {gridX: 50, gridY: 50, orientation: 270},
+                {gridX: 30, gridY: 25, orientation: 75}
             ],
             mines: [
             ]

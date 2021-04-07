@@ -152,6 +152,134 @@ class Soldier extends Component {
     }
 }
 
+class Camera extends Component {
+    constructor(startOrientation, ...args) {
+        super(...args);
+        this.color = '#ee0000';
+        this.alertStatus = 0;
+        this.visionCone = {
+            degrees: 40,
+            depth: 30,
+            currentOrientation: this.calculateOrientation(startOrientation),
+            turnSpeed: 1,
+            leftBoundary: this.calculateOrientation(startOrientation) - 45,
+            rightBoundary: this.calculateOrientation(startOrientation) + 45,
+            leftEye: 0,
+            rightEye: 0
+        };
+    }
+
+    draw() {
+        this.drawCircle();
+    }
+
+    drawVisionCone() {
+        gameArea.context.beginPath();
+        switch(this.alertStatus) {
+            case 0:
+                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.45)';
+                break;
+            case 1:
+                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.45)';
+                break;
+            case 2:
+                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.45)';
+                break;
+        }
+
+        gameArea.context.moveTo(this.canvasX, this.canvasY);
+        this.visionCone.leftEye = (this.visionCone.currentOrientation - (this.visionCone.degrees/2))  / 180 * Math.PI;
+        this.visionCone.rightEye = (this.visionCone.currentOrientation + (this.visionCone.degrees/2)) / 180 * Math.PI;
+        gameArea.context.arc(this.canvasX, this.floorTile.canvasY, this.radius*this.visionCone.depth, this.visionCone.leftEye, this.visionCone.rightEye);
+        gameArea.context.lineTo(this.canvasX, this.canvasY);
+        gameArea.context.fill();
+        gameArea.context.closePath();
+    }
+
+    calculateOrientation(orientation) {
+        let degrees = orientation;
+        if(orientation > 180)
+            degrees = orientation-360;
+
+        return degrees;
+    }
+
+    alert() {
+        this.alertStatus = 2;
+    }
+
+    searching() {
+        this.alertStatus = 1;
+    }
+
+    idle() {
+        this.alertStatus = 0;
+    }
+
+    turnLeft() {
+        this.visionCone.currentOrientation -= this.visionCone.turnSpeed;
+    }
+
+    turnRight() {
+        this.visionCone.currentOrientation += this.visionCone.turnSpeed;
+    }
+
+    surveillanceLoop() {
+        if(gameArea.frames % 400 < 200) {
+            if(this.visionCone.currentOrientation >= this.visionCone.leftBoundary)
+                this.turnLeft();
+        } else {
+            if(this.visionCone.currentOrientation <= this.visionCone.rightBoundary)
+                this.turnRight();
+        }
+
+        this.surveillanceReport();
+    }
+
+    surveillanceReport() {
+        let alerts = 0;
+
+        gameArea.snake.sections.forEach((section) => {
+            if(this.insideRadius(section)) {
+                if(this.insideCone(section)) {
+                    alerts++;
+                }
+            }
+        });
+        setTimeout(() => {alerts > 0 ? this.alert() : this.idle();}, 60);
+    }
+
+    insideRadius(snakeSection) {
+        const cameraX = this.canvasX;
+        const cameraY = this.canvasY;
+
+        const snakeX = snakeSection.canvasX;
+        const snakeY = snakeSection.canvasY;
+
+        const distX = cameraX - snakeX;
+        const distY = cameraY - snakeY;
+
+        const distance = Math.sqrt(distX * distX + distY * distY);
+
+        return distance <= ((this.radius*this.visionCone.depth) + snakeSection.radius);
+    }
+
+    insideCone(snakeSection) {
+        const leftAngle = this.visionCone.leftEye;
+        const rightAngle = this.visionCone.rightEye;
+
+        const cameraX = this.canvasX;
+        const cameraY = this.canvasY;
+
+        const snakeX = snakeSection.canvasX;
+        const snakeY = snakeSection.canvasY;
+
+        const playerAngleToCamera = Math.atan2(snakeY - cameraY, snakeX - cameraX);
+        
+        return (Math.min(leftAngle, rightAngle) < playerAngleToCamera && playerAngleToCamera < Math.max(leftAngle, rightAngle))
+    }
+}
+
 class SnakeSection extends Component {
     constructor(direction, ...args) {
         super(...args);
