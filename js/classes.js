@@ -1,28 +1,33 @@
-class SingleTileComponent {
+class Component {
     constructor(gridX, gridY) {
         this.floorTile = gameArea.grid[gridY][gridX];
         this.gridX = gridX;
         this.gridY = gridY;
         this.canvasX = this.floorTile.tileCenter.canvasX;
         this.canvasY = this.floorTile.tileCenter.canvasY;
-        this.radius = (this.floorTile.sideLength/2) - 5;
+        this.radius = this.floorTile.sideLength/2;
         this.color = '';
         this.moveSpeed = gameArea.gridideLength;
     }
 
-    draw() {
+    drawCircle() {
         gameArea.context.beginPath();
         gameArea.context.fillStyle = this.color;
         gameArea.context.arc(this.canvasX, this.canvasY, this.radius, 0, 2 * Math.PI);
         gameArea.context.fill();
         gameArea.context.closePath();
     }
+
+    drawSquare() {
+        gameArea.context.fillStyle = this.color;
+        gameArea.context.fillRect(this.floorTile.canvasX, this.floorTile.canvasY, this.floorTile.sideLength, this.floorTile.sideLength);
+    }
 }
 
-class Soldier extends SingleTileComponent {
+class Soldier extends Component {
     constructor(startOrientation, ...args) {
         super(...args);
-        this.color = '#bb0000';
+        this.color = '#ee0000';
         this.alertStatus = 0;
         this.visionCone = {
             degrees: 80,
@@ -36,17 +41,21 @@ class Soldier extends SingleTileComponent {
         };
     }
 
+    draw() {
+        this.drawCircle();
+    }
+
     drawVisionCone() {
         gameArea.context.beginPath();
         switch(this.alertStatus) {
             case 0:
-                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.15)';
+                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.45)';
                 break;
             case 1:
-                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.15)';
+                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.45)';
                 break;
             case 2:
-                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.15)';
+                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.45)';
                 break;
         }
 
@@ -109,7 +118,6 @@ class Soldier extends SingleTileComponent {
                 }
             }
         });
-
         alerts > 0 ? this.alert() : this.idle();
     }
 
@@ -144,20 +152,230 @@ class Soldier extends SingleTileComponent {
     }
 }
 
-class SnakeSection extends SingleTileComponent {
+class Camera extends Component {
+    constructor(startOrientation, ...args) {
+        super(...args);
+        this.color = '#ee0000';
+        this.alertStatus = 0;
+        this.visionCone = {
+            degrees: 40,
+            depth: 30,
+            currentOrientation: this.calculateOrientation(startOrientation),
+            turnSpeed: 1,
+            leftBoundary: this.calculateOrientation(startOrientation) - 45,
+            rightBoundary: this.calculateOrientation(startOrientation) + 45,
+            leftEye: 0,
+            rightEye: 0
+        };
+    }
+
+    draw() {
+        this.drawCircle();
+    }
+
+    drawVisionCone() {
+        gameArea.context.beginPath();
+        switch(this.alertStatus) {
+            case 0:
+                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.45)';
+                break;
+            case 1:
+                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.45)';
+                break;
+            case 2:
+                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.45)';
+                break;
+        }
+
+        gameArea.context.moveTo(this.canvasX, this.canvasY);
+        this.visionCone.leftEye = (this.visionCone.currentOrientation - (this.visionCone.degrees/2))  / 180 * Math.PI;
+        this.visionCone.rightEye = (this.visionCone.currentOrientation + (this.visionCone.degrees/2)) / 180 * Math.PI;
+        gameArea.context.arc(this.canvasX, this.floorTile.canvasY, this.radius*this.visionCone.depth, this.visionCone.leftEye, this.visionCone.rightEye);
+        gameArea.context.lineTo(this.canvasX, this.canvasY);
+        gameArea.context.fill();
+        gameArea.context.closePath();
+    }
+
+    calculateOrientation(orientation) {
+        let degrees = orientation;
+        if(orientation > 180)
+            degrees = orientation-360;
+
+        return degrees;
+    }
+
+    alert() {
+        this.alertStatus = 2;
+    }
+
+    searching() {
+        this.alertStatus = 1;
+    }
+
+    idle() {
+        this.alertStatus = 0;
+    }
+
+    turnLeft() {
+        this.visionCone.currentOrientation -= this.visionCone.turnSpeed;
+    }
+
+    turnRight() {
+        this.visionCone.currentOrientation += this.visionCone.turnSpeed;
+    }
+
+    surveillanceLoop() {
+        if(gameArea.frames % 400 < 200) {
+            if(this.visionCone.currentOrientation >= this.visionCone.leftBoundary)
+                this.turnLeft();
+        } else {
+            if(this.visionCone.currentOrientation <= this.visionCone.rightBoundary)
+                this.turnRight();
+        }
+
+        this.surveillanceReport();
+    }
+
+    surveillanceReport() {
+        let alerts = 0;
+
+        gameArea.snake.sections.forEach((section) => {
+            if(this.insideRadius(section)) {
+                if(this.insideCone(section)) {
+                    alerts++;
+                }
+            }
+        });
+        alerts > 0 ? this.alert() : this.idle();
+    }
+
+    insideRadius(snakeSection) {
+        const cameraX = this.canvasX;
+        const cameraY = this.canvasY;
+
+        const snakeX = snakeSection.canvasX;
+        const snakeY = snakeSection.canvasY;
+
+        const distX = cameraX - snakeX;
+        const distY = cameraY - snakeY;
+
+        const distance = Math.sqrt(distX * distX + distY * distY);
+
+        return distance <= ((this.radius*this.visionCone.depth) + snakeSection.radius);
+    }
+
+    insideCone(snakeSection) {
+        const leftAngle = this.visionCone.leftEye;
+        const rightAngle = this.visionCone.rightEye;
+
+        const cameraX = this.canvasX;
+        const cameraY = this.canvasY;
+
+        const snakeX = snakeSection.canvasX;
+        const snakeY = snakeSection.canvasY;
+
+        const playerAngleToCamera = Math.atan2(snakeY - cameraY, snakeX - cameraX);
+        
+        return (Math.min(leftAngle, rightAngle) < playerAngleToCamera && playerAngleToCamera < Math.max(leftAngle, rightAngle))
+    }
+}
+
+class Mine extends Component {
+    constructor(...args) {
+        super(...args);
+        this.color = '#ee0000';
+        this.alertStatus = 0;
+        this.visionCone = {
+            depth: 8
+        };
+    }
+
+    draw() {
+        this.drawCircle();
+    }
+
+    drawVisionCone() {
+        gameArea.context.beginPath();
+        switch(this.alertStatus) {
+            case 0:
+                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.45)';
+                break;
+            case 1:
+                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.45)';
+                break;
+            case 2:
+                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.45)';
+                break;
+        }
+
+        gameArea.context.moveTo(this.canvasX, this.canvasY);
+        gameArea.context.arc(this.canvasX, this.floorTile.canvasY, this.radius*this.visionCone.depth, 0, 2*Math.PI);
+        gameArea.context.fill();
+        gameArea.context.closePath();
+    }
+
+    alert() {
+        this.alertStatus = 2;
+    }
+
+    searching() {
+        this.alertStatus = 1;
+    }
+
+    idle() {
+        this.alertStatus = 0;
+    }
+    surveillanceLoop() {
+        this.surveillanceReport();
+    }
+
+    surveillanceReport() {
+        let alerts = 0;
+
+        gameArea.snake.sections.forEach((section) => {
+            if(this.insideRadius(section)) {
+                    alerts++;
+            }
+        });
+
+        alerts > 0 ? this.alert() : this.idle();
+    }
+
+    insideRadius(snakeSection) {
+        const mineX = this.canvasX;
+        const mineY = this.canvasY;
+
+        const snakeX = snakeSection.canvasX;
+        const snakeY = snakeSection.canvasY;
+
+        const distX = mineX - snakeX;
+        const distY = mineY - snakeY;
+
+        const distance = Math.sqrt(distX * distX + distY * distY);
+
+        return distance <= ((this.radius*this.visionCone.depth) + snakeSection.radius);
+    }
+}
+
+class SnakeSection extends Component {
     constructor(direction, ...args) {
         super(...args);
         this.direction = direction;
-        this.color = '#00bb00';
+        this.color = '#1abc9c';
+    }
+
+    draw() {
+        gameArea.snake.sections.indexOf(this) % 2 === 0 ? this.color = '#16a085' : this.color = '#1abc9c';
+        this.drawSquare()    ;
     }
 }
 
 class Snake {
-    constructor(gridX, gridY, startingDirection) {
+    constructor(gridX, gridY, startingSize, startingDirection) {
         this.gridX = gridX;
         this.gridY = gridY;
-        this.floorTile = gameArea.grid[gridX][gridY];
-        this.radius = (this.floorTile.side/2) - 5;
+        this.floorTile = gameArea.grid[this.gridX][this.gridY];
+        this.startingSize = startingSize;
         this.sections = [];
         this.direction = startingDirection;
         this.init();
@@ -165,10 +383,10 @@ class Snake {
 
     init() {
         const head = new SnakeSection(this.direction, this.gridX, this.gridY);
-        
         this.sections.push(head);
-        for(let i = 0; i < 3; i++) {
-            this.addNewSection();
+
+        for(let i = 1; i < this.startingSize-1; i++) {
+            this.addNewSection(i);
         }
     }
 
@@ -200,14 +418,14 @@ class Snake {
 
     draw() {
         this.drawHead();
-        this.drawTail();
+        this.drawBody();
     }
 
     drawHead() {
         this.sections[0].draw();
     }
 
-    drawTail() {
+    drawBody() {
         for(let i = 1; i < this.sections.length; i++) {
             this.sections[i].draw();
         }
@@ -220,9 +438,6 @@ class Snake {
 
         let newHeadX = currentHeadX;
         let newHeadY = currentHeadY;
-
-        const lastSectionX = this.sections[this.sections.length -1].gridX;
-        const lastSectionY = this.sections[this.sections.length -1].gridY;
 
         switch(this.direction) {
             case 'D':
@@ -258,15 +473,33 @@ class Snake {
             }
         });
 
+        gameArea.cameras.forEach((camera) => {
+            if(camera.gridX === newHeadX && camera.gridY === newHeadY) {
+                gameArea.stop();
+                return;
+            }
+        });
+
+        gameArea.mines.forEach((mine) => {
+            if(mine.gridX === newHeadX && mine.gridY === newHeadY) {
+                gameArea.stop();
+                return;
+            }
+        });
+
+        const newHead = new SnakeSection(this.direction, newHeadX, newHeadY);
+        
+        this.sections.unshift(newHead);
+        this.sections.pop();
+
         gameArea.keyCards.forEach((keyCard) => {
-            if(newHeadX === keyCard.gridX && newHeadY === keyCard.gridY && keyCard.status === 'uncollected')
+            if(newHeadX === keyCard.gridX && newHeadY === keyCard.gridY && !keyCard.collected)
                 keyCard.collect();
         });
 
-        const newSection = new SnakeSection(this.direction, newHeadX, newHeadY);
-        
-        this.sections.unshift(newSection);
-        this.sections.pop();
+        if(newHeadX === gameArea.door.gridX && newHeadY === gameArea.door.gridY) {
+            gameArea.door.unlocked ? gameArea.nextLevel() : gameArea.stop();
+        }
     }
 
     turn(turnDirection) {
@@ -276,6 +509,7 @@ class Snake {
            }
         
         this.direction = turnDirection;
+        this.sections[0].direction = turnDirection;
     }
 }
 
@@ -291,22 +525,45 @@ class FloorTile {
     }
 
     draw() {
-        gameArea.context.strokeStyle = "#fefefe";
+        gameArea.context.strokeStyle = "#2c3e50";
         gameArea.context.lineWidth = 1;
         gameArea.context.strokeRect(this.canvasX, this.canvasY, this.sideLength, this.sideLength);
     }
 }
 
-class KeyCard extends SingleTileComponent {
+class KeyCard extends Component {
     constructor(...args) {
         super(...args);
         this.color = '#fdd835';
-        this.status = 'uncollected';
+        this.collected = false;
+    }
+
+    draw() {
+        this.drawSquare();
     }
 
     collect() {
-        this.status = 'collected';
+        this.collected = true;
         gameArea.snake.addNewSection();
         gameArea.collectedKeyCards++;
+        if(gameArea.collectedKeyCards === gameArea.keyCards.length)
+            gameArea.door.unlock();
+    }
+}
+
+class Door extends Component{
+    constructor(...args) {
+        super(...args);
+        this.unlocked = false;
+        this.color = '#ff0000';
+    }
+
+    draw() {
+        this.drawSquare();
+    }
+
+    unlock() {
+        this.unlocked = true;
+        this.color = '#00ff00';
     }
 }

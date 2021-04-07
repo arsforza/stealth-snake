@@ -2,18 +2,72 @@ const gameArea = {
     canvas: document.createElement('canvas'),
     frames: 0,
     soldiers: [],
+    cameras: [],
+    mines: [],
     grid: [],
     snake: undefined,
     keyCards: [],
+    door: undefined,
+    clearedLevels: 0,
     start: function() {
-        this.canvas.width = 720;
-        this.canvas.height = 720;
+        this.canvas.width = 600;
+        this.canvas.height = 600;
         this.context = this.canvas.getContext('2d');
-        this.canvas.style.backgroundColor = '#f7f7f7';
-        this.gridideLength = 24;
+        this.canvas.style.backgroundColor = '#2c3e50';
         document.body.appendChild(this.canvas);
-        gameArea.drawGrid();
+        
+        this.gridTileSideLength = 10;
+        this.collectedKeyCards = 0;
+        
+        gameArea.loadGrid();
+        gameArea.loadLevel(levels[this.clearedLevels]);
         this.interval = setInterval(updateGameArea, 20);
+    },
+    loadGrid: function(){
+        this.grid = [];
+        for(let y = 0; y < this.canvas.height / this.gridTileSideLength; y++) {
+            const row = []
+            for(let x = 0; x < this.canvas.width / this.gridTileSideLength; x++) {
+                const floorTile = new FloorTile(x, y, this.gridTileSideLength);
+                row.push(floorTile);
+            }
+            this.grid.push(row);
+        }
+    },
+    loadLevel: function(level) {
+        gameArea.clear();
+
+        gameArea.loadGrid();
+        
+        this.snake = undefined;
+        this.addSnake(new Snake(level.snake.gridX, level.snake.gridY, level.snake.startingSize, level.snake.direction));
+        
+        this.soldiers = [];
+        level.enemies.soldiers.forEach((soldier) => {
+            this.addSoldier(new Soldier(soldier.orientation, soldier.gridX, soldier.gridY));
+        });
+
+        level.enemies.cameras.forEach((camera) => {
+            gameArea.addCamera(new Camera(camera.orientation, camera.gridX, camera.gridY));
+        });
+
+        level.mines = [];
+        level.enemies.mines.forEach((mine) => {
+            gameArea.addMine(new Mine(mine.gridX, mine.gridY));
+        });
+
+        this.collectedKeyCards = 0;
+        this.keyCards = [];
+        level.keyCards.forEach((keyCard) => {
+            this.addKeyCard(new KeyCard(keyCard.gridX, keyCard.gridY));
+        });
+
+        this.door = undefined;
+        this.addDoor(new Door(level.door.gridX, level.door.gridY));
+    },
+    nextLevel: function() {
+        this.clearedLevels++;
+        this.loadLevel(levels[this.clearedLevels]);
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.width);
@@ -23,63 +77,62 @@ const gameArea = {
     },
     addSoldier: function(element) {
         this.soldiers.push(element);
-        this.grid[element.gridY][element.gridX] = element;
+    },
+    addCamera: function(element) {
+        this.cameras.push(element);
+    },
+    addMine: function(element) {
+        this.mines.push(element);
     },
     addSnake: function(element) {
         this.snake = element;
     },
-    addKeycard: function(element) {
+    addKeyCard: function(element) {
         this.keyCards.push(element);
     },
-    drawGrid: function(){
-        this.grid = [];
-        for(let y = 0; y < this.canvas.height / this.gridideLength; y++) {
-            const row = []
-            for(let x = 0; x < this.canvas.width / this.gridideLength; x++) {
-                const floorTile = new FloorTile(x, y, this.gridideLength);
-                row.push(floorTile);
-                floorTile.draw();
-            }
-            this.grid.push(row);
-        }
+    addDoor: function(element) {
+        this.door = element;
     }
 };
 
 gameArea.start();
 
-gameArea.addSoldier(new Soldier(0, 5, 7));
-gameArea.addSoldier(new Soldier(270, 19, 2));
-gameArea.addSoldier(new Soldier(75, 10, 10));
-gameArea.addSnake(new Snake(4, 7, 'D'));
-gameArea.addKeycard(new KeyCard(4, 25));
-gameArea.addKeycard(new KeyCard(10, 28));
-gameArea.addKeycard(new KeyCard(16, 8));
-gameArea.addKeycard(new KeyCard(21, 2));
-
 function updateGameArea() {
     gameArea.clear();
-    gameArea.drawGrid();
+    
     gameArea.snake.draw();
-    if(gameArea.frames % 6 === 0)
+    if(gameArea.frames % 5 === 0)
         gameArea.snake.moveForward();
 
     gameArea.soldiers.forEach((soldier) => {
-        soldier.draw();
         soldier.drawVisionCone();
+        soldier.draw();
         soldier.surveillanceLoop();        
     });
 
-    gameArea.keyCards.forEach((keyCard) => {
-        if(keyCard.status === 'uncollected')
-            keyCard.draw();
+    gameArea.cameras.forEach((camera) => {
+        camera.drawVisionCone();
+        camera.draw();
+        camera.surveillanceLoop();        
     });
+
+    gameArea.mines.forEach((mine) => {
+        mine.drawVisionCone();
+        mine.draw();
+        mine.surveillanceLoop();        
+    });
+
+    gameArea.keyCards.forEach((keyCard) => {
+        if(!keyCard.collected)
+            keyCard.draw();        
+    });
+
+    gameArea.door.draw();
 
     gameArea.frames++;
 }
 
-
-
-document.addEventListener('keydown', function(event){
+document.addEventListener('keydown', function(event) {
     switch(event.key) {
         case "ArrowRight":
             gameArea.snake.turn('R');
