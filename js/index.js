@@ -52,9 +52,9 @@ const gameArea = {
         });
 
         level.mines = [];
-        // level.enemies.mines.forEach((mine) => {
-        //     gameArea.addMine(new Mine(soldier.orientation, soldier.gridX, soldier.gridY));
-        // });
+        level.enemies.mines.forEach((mine) => {
+            gameArea.addMine(new Mine(mine.gridX, mine.gridY));
+        });
 
         this.collectedKeyCards = 0;
         this.keyCards = [];
@@ -81,6 +81,9 @@ const gameArea = {
     addCamera: function(element) {
         this.cameras.push(element);
     },
+    addMine: function(element) {
+        this.mines.push(element);
+    },
     addSnake: function(element) {
         this.snake = element;
     },
@@ -102,15 +105,21 @@ function updateGameArea() {
         gameArea.snake.moveForward();
 
     gameArea.soldiers.forEach((soldier) => {
-        soldier.draw();
         soldier.drawVisionCone();
+        soldier.draw();
         soldier.surveillanceLoop();        
     });
 
     gameArea.cameras.forEach((camera) => {
-        camera.draw();
         camera.drawVisionCone();
+        camera.draw();
         camera.surveillanceLoop();        
+    });
+
+    gameArea.mines.forEach((mine) => {
+        mine.drawVisionCone();
+        mine.draw();
+        mine.surveillanceLoop();        
     });
 
     gameArea.keyCards.forEach((keyCard) => {

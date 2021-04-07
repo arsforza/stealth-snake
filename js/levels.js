@@ -65,6 +65,8 @@ levels = [
                 {gridX: 30, gridY: 25, orientation: 75}
             ],
             mines: [
+                {gridX: 3, gridY: 45, orientation: 0},
+                {gridX: 20, gridY: 51, orientation: 75}
             ]
         },
         keyCards: [
@@ -91,6 +93,8 @@ levels = [
                 {gridX: 30, gridY: 25, orientation: 75}
             ],
             mines: [
+                {gridX: 3, gridY: 45, orientation: 0},
+                {gridX: 20, gridY: 51, orientation: 75}
             ]
         },
         keyCards: [
