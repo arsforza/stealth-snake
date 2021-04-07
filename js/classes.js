@@ -1,4 +1,4 @@
-class SingleTileComponent {
+class Component {
     constructor(gridX, gridY) {
         this.floorTile = gameArea.grid[gridY][gridX];
         this.gridX = gridX;
@@ -6,21 +6,25 @@ class SingleTileComponent {
         this.canvasX = this.floorTile.tileCenter.canvasX;
         this.canvasY = this.floorTile.tileCenter.canvasY;
         this.radius = this.floorTile.sideLength/2;
-        
         this.color = '';
         this.moveSpeed = gameArea.gridideLength;
     }
 
-    draw() {
+    drawCircle() {
         gameArea.context.beginPath();
         gameArea.context.fillStyle = this.color;
         gameArea.context.arc(this.canvasX, this.canvasY, this.radius, 0, 2 * Math.PI);
         gameArea.context.fill();
         gameArea.context.closePath();
     }
+
+    drawSquare() {
+        gameArea.context.fillStyle = this.color;
+        gameArea.context.fillRect(this.floorTile.canvasX, this.floorTile.canvasY, this.floorTile.sideLength, this.floorTile.sideLength);
+    }
 }
 
-class Soldier extends SingleTileComponent {
+class Soldier extends Component {
     constructor(startOrientation, ...args) {
         super(...args);
         this.color = '#ee0000';
@@ -35,6 +39,10 @@ class Soldier extends SingleTileComponent {
             leftEye: 0,
             rightEye: 0
         };
+    }
+
+    draw() {
+        this.drawCircle();
     }
 
     drawVisionCone() {
@@ -144,53 +152,40 @@ class Soldier extends SingleTileComponent {
     }
 }
 
-class SnakeSection extends SingleTileComponent {
-    constructor(direction, sectionIndex, ...args) {
+class SnakeSection extends Component {
+    constructor(direction, ...args) {
         super(...args);
         this.direction = direction;
-        this.sectionIndex = sectionIndex;
+        this.color = '#1abc9c';
     }
 
-    draw(type) {
-        gameArea.snake.sections.indexOf(this) % 2 === 0 ? gameArea.context.fillStyle = '#16a085' : gameArea.context.fillStyle =  '#1abc9c';
-
-        const fullSquare = {x: this.floorTile.canvasX, y: this.floorTile.canvasY, w: this.floorTile.sideLength, h: this.floorTile.sideLength}
-
-        switch(type) {
-            case 'body':
-                gameArea.context.fillRect(fullSquare.x, fullSquare.y, fullSquare.w, fullSquare.h);
-                break;
-            case 'head':
-                
-                gameArea.context.fillRect(this.floorTile.canvasX, this.floorTile.canvasY, this.floorTile.sideLength, this.floorTile.sideLength);
-        }
-            
-        
-        gameArea.context.arc(this.canvasX, this.canvasY, this.radius, 0, 2 * Math.PI);        
+    draw() {
+        gameArea.snake.sections.indexOf(this) % 2 === 0 ? this.color = '#16a085' : this.color = '#1abc9c';
+        this.drawSquare()    ;
     }
 }
 
 class Snake {
-    constructor(gridX, gridY, startingDirection) {
+    constructor(gridX, gridY, startingSize, startingDirection) {
         this.gridX = gridX;
         this.gridY = gridY;
-        this.floorTile = gameArea.grid[gridX][gridY];
+        this.floorTile = gameArea.grid[this.gridX][this.gridY];
+        this.startingSize = startingSize;
         this.sections = [];
         this.direction = startingDirection;
-        this.startSections = 15;
         this.init();
     }
 
     init() {
-        const head = new SnakeSection(this.direction, 0, this.gridX, this.gridY);
+        const head = new SnakeSection(this.direction, this.gridX, this.gridY);
         this.sections.push(head);
 
-        for(let i = 1; i < this.startSections-1; i++) {
+        for(let i = 1; i < this.startingSize-1; i++) {
             this.addNewSection(i);
         }
     }
 
-    addNewSection(sectionIndex) {
+    addNewSection() {
         const lastSection = this.sections[this.sections.length - 1];
         
         let newSectionGridX = lastSection.gridX;;
@@ -211,7 +206,7 @@ class Snake {
                 break;
         }
 
-        const newSection = new SnakeSection(lastSection.direction, sectionIndex, newSectionGridX, newSectionGridY);
+        const newSection = new SnakeSection(lastSection.direction, newSectionGridX, newSectionGridY);
 
         this.sections.push(newSection);
     }
@@ -222,12 +217,12 @@ class Snake {
     }
 
     drawHead() {
-        this.sections[0].draw('head');
+        this.sections[0].draw();
     }
 
     drawBody() {
         for(let i = 1; i < this.sections.length; i++) {
-            this.sections[i].draw('body');
+            this.sections[i].draw();
         }
     }
 
@@ -273,15 +268,21 @@ class Snake {
             }
         });
 
+        const newHead = new SnakeSection(this.direction, newHeadX, newHeadY);
+        
+        this.sections.unshift(newHead);
+        this.sections.pop();
+
         gameArea.keyCards.forEach((keyCard) => {
             if(newHeadX === keyCard.gridX && newHeadY === keyCard.gridY && !keyCard.collected)
                 keyCard.collect();
         });
 
-        const newSection = new SnakeSection(this.direction, 0,  newHeadX, newHeadY);
-        
-        this.sections.unshift(newSection);
-        this.sections.pop();
+        if(newHeadX === gameArea.door.gridX && newHeadY === gameArea.door.gridY) {
+            gameArea.door.unlocked ? gameArea.nextLevel() : gameArea.stop();
+        }
+            
+
     }
 
     turn(turnDirection) {
@@ -313,11 +314,15 @@ class FloorTile {
     }
 }
 
-class KeyCard extends SingleTileComponent {
+class KeyCard extends Component {
     constructor(...args) {
         super(...args);
         this.color = '#fdd835';
         this.collected = false;
+    }
+
+    draw() {
+        this.drawSquare();
     }
 
     collect() {
@@ -329,11 +334,15 @@ class KeyCard extends SingleTileComponent {
     }
 }
 
-class Door extends SingleTileComponent{
+class Door extends Component{
     constructor(...args) {
         super(...args);
         this.unlocked = false;
         this.color = '#ff0000';
+    }
+
+    draw() {
+        this.drawSquare();
     }
 
     unlock() {

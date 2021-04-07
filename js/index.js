@@ -5,16 +5,61 @@ const gameArea = {
     grid: [],
     snake: undefined,
     keyCards: [],
+    clearedLevels: 0,
     start: function() {
         this.canvas.width = 600;
         this.canvas.height = 600;
         this.context = this.canvas.getContext('2d');
         this.canvas.style.backgroundColor = '#2c3e50';
-        this.gridideLength = 10;
         document.body.appendChild(this.canvas);
+        
+        this.gridTileSideLength = 10;
         this.collectedKeyCards = 0;
-        gameArea.drawGrid();
+        
+        gameArea.loadGrid();
+        gameArea.loadLevel(levels[this.clearedLevels]);
         this.interval = setInterval(updateGameArea, 20);
+    },
+    loadGrid: function(){
+        this.grid = [];
+        for(let y = 0; y < this.canvas.height / this.gridTileSideLength; y++) {
+            const row = []
+            for(let x = 0; x < this.canvas.width / this.gridTileSideLength; x++) {
+                const floorTile = new FloorTile(x, y, this.gridTileSideLength);
+                row.push(floorTile);
+            }
+            this.grid.push(row);
+        }
+    },
+    loadLevel: function(level) {
+        gameArea.clear();
+        gameArea.loadGrid();
+        this.soldiers = [];
+        this.keyCards = [];
+        this.snake = undefined;
+        this.addSnake(new Snake(level.snake.gridX, level.snake.gridY, level.snake.startingSize, level.snake.direction));
+
+        this.addDoor(new Door(level.door.gridX, level.door.gridY));
+
+        level.enemies.soldiers.forEach((soldier) => {
+            this.addSoldier(new Soldier(soldier.orientation, soldier.gridX, soldier.gridY));
+        });
+
+        // level.enemies.cameras.forEach((camera) => {
+        //     gameArea.addCamera(new Camera(soldier.orientation, soldier.gridX, soldier.gridY));
+        // });
+
+        // level.enemies.mines.forEach((mine) => {
+        //     gameArea.addMine(new Mine(soldier.orientation, soldier.gridX, soldier.gridY));
+        // });
+
+        level.keyCards.forEach((keyCard) => {
+            this.addKeyCard(new KeyCard(keyCard.gridX, keyCard.gridY));
+        });
+    },
+    nextLevel: function() {
+        this.clearedLevels++;
+        this.loadLevel(levels[this.clearedLevels]);
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.width);
@@ -24,48 +69,26 @@ const gameArea = {
     },
     addSoldier: function(element) {
         this.soldiers.push(element);
-        this.grid[element.gridY][element.gridX] = element;
     },
     addSnake: function(element) {
         this.snake = element;
     },
-    addKeycard: function(element) {
+    addKeyCard: function(element) {
         this.keyCards.push(element);
     },
     addDoor: function(element) {
         this.door = element;
-    },
-    drawGrid: function(){
-        this.grid = [];
-        for(let y = 0; y < this.canvas.height / this.gridideLength; y++) {
-            const row = []
-            for(let x = 0; x < this.canvas.width / this.gridideLength; x++) {
-                const floorTile = new FloorTile(x, y, this.gridideLength);
-                row.push(floorTile);                
-            }
-            this.grid.push(row);
-        }
     }
 };
 
 gameArea.start();
 
-gameArea.addSoldier(new Soldier(0, 5, 7));
-gameArea.addSoldier(new Soldier(270, 19, 2));
-gameArea.addSoldier(new Soldier(75, 10, 10));
-gameArea.addSnake(new Snake(4, 15, 'D'));
-gameArea.addKeycard(new KeyCard(4, 25));
-gameArea.addKeycard(new KeyCard(10, 28));
-gameArea.addKeycard(new KeyCard(16, 8));
-gameArea.addKeycard(new KeyCard(21, 2));
-gameArea.addDoor(new Door(59, 59));
-
 function updateGameArea() {
     gameArea.clear();
-    gameArea.drawGrid();
     gameArea.door.draw();
+    
     gameArea.snake.draw();
-    if(gameArea.frames % 2 === 0)
+    if(gameArea.frames % 5 === 0)
         gameArea.snake.moveForward();
 
     gameArea.soldiers.forEach((soldier) => {
@@ -82,7 +105,7 @@ function updateGameArea() {
     gameArea.frames++;
 }
 
-document.addEventListener('keydown', function(event){
+document.addEventListener('keydown', function(event) {
     switch(event.key) {
         case "ArrowRight":
             gameArea.snake.turn('R');
