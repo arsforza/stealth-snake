@@ -48,11 +48,12 @@ const gameArea = {
             this.addSoldier(new Soldier(soldier.orientation, soldier.gridX, soldier.gridY));
         });
 
+        this.cameras = [];
         level.enemies.cameras.forEach((camera) => {
             gameArea.addCamera(new Camera(camera.orientation, camera.gridX, camera.gridY));
         });
 
-        level.mines = [];
+        this.mines = [];
         level.enemies.mines.forEach((mine) => {
             gameArea.addMine(new Mine(mine.gridX, mine.gridY));
         });
