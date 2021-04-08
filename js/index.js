@@ -9,6 +9,7 @@ const gameArea = {
     keyCards: [],
     door: undefined,
     clearedLevels: 0,
+    collectedKeyCards: 0,
     start: function() {
         this.canvas.width = settings.gameWidth;
         this.canvas.height = settings.gameHeight;

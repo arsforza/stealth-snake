@@ -49,13 +49,10 @@ class Soldier extends Component {
         gameArea.context.beginPath();
         switch(this.alertStatus) {
             case 0:
-                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.45)';
+                gameArea.context.fillStyle = settings.colors.idle;
                 break;
             case 1:
-                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.45)';
-                break;
-            case 2:
-                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.45)';
+                gameArea.context.fillStyle = settings.colors.alert;
                 break;
         }
 
@@ -77,7 +74,7 @@ class Soldier extends Component {
     }
 
     alert() {
-        this.alertStatus = 2;
+        this.alertStatus = 1;
     }
 
     searching() {
@@ -177,13 +174,10 @@ class Camera extends Component {
         gameArea.context.beginPath();
         switch(this.alertStatus) {
             case 0:
-                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.45)';
+                gameArea.context.fillStyle = settings.colors.idle;
                 break;
             case 1:
-                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.45)';
-                break;
-            case 2:
-                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.45)';
+                gameArea.context.fillStyle = settings.colors.alert;
                 break;
         }
 
@@ -205,7 +199,7 @@ class Camera extends Component {
     }
 
     alert() {
-        this.alertStatus = 2;
+        this.alertStatus = 1;
     }
 
     searching() {
@@ -298,13 +292,10 @@ class Mine extends Component {
         gameArea.context.beginPath();
         switch(this.alertStatus) {
             case 0:
-                gameArea.context.fillStyle = 'rgba(0, 100, 255, 0.45)';
+                gameArea.context.fillStyle = settings.colors.idle;
                 break;
             case 1:
-                gameArea.context.fillStyle = 'rgba(255, 170, 0, 0.45)';
-                break;
-            case 2:
-                gameArea.context.fillStyle = 'rgba(255, 0, 0, 0.45)';
+                gameArea.context.fillStyle = settings.colors.alert;
                 break;
         }
 
@@ -315,10 +306,6 @@ class Mine extends Component {
     }
 
     alert() {
-        this.alertStatus = 2;
-    }
-
-    searching() {
         this.alertStatus = 1;
     }
 
