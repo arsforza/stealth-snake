@@ -27,11 +27,11 @@ class Component {
 class Soldier extends Component {
     constructor(startOrientation, ...args) {
         super(...args);
-        this.color = '#ee0000';
+        this.color = settings.colors.soldier;
         this.alertStatus = 0;
         this.visionCone = {
-            degrees: 80,
-            depth: 15,
+            degrees: settings.visionCones.soldierDegrees,
+            depth: this.floorTile.sideLength * settings.visionCones.solderTilesDepth,
             currentOrientation: this.calculateOrientation(startOrientation),
             turnSpeed: 1,
             leftBoundary: this.calculateOrientation(startOrientation) - 45,
@@ -62,7 +62,7 @@ class Soldier extends Component {
         gameArea.context.moveTo(this.canvasX, this.canvasY);
         this.visionCone.leftEye = (this.visionCone.currentOrientation - (this.visionCone.degrees/2))  / 180 * Math.PI;
         this.visionCone.rightEye = (this.visionCone.currentOrientation + (this.visionCone.degrees/2)) / 180 * Math.PI;
-        gameArea.context.arc(this.canvasX, this.floorTile.canvasY, this.radius*this.visionCone.depth, this.visionCone.leftEye, this.visionCone.rightEye);
+        gameArea.context.arc(this.canvasX, this.canvasY, this.visionCone.depth, this.visionCone.leftEye, this.visionCone.rightEye);
         gameArea.context.lineTo(this.canvasX, this.canvasY);
         gameArea.context.fill();
         gameArea.context.closePath();
@@ -97,7 +97,7 @@ class Soldier extends Component {
     }
 
     surveillanceLoop() {
-        if(gameArea.frames % 400 < 200) {
+        if(gameArea.frames % settings.surveillanceLoopFrames < settings.surveillanceLoopFrames/2) {
             if(this.visionCone.currentOrientation >= this.visionCone.leftBoundary)
                 this.turnLeft();
         } else {
@@ -133,7 +133,7 @@ class Soldier extends Component {
 
         const distance = Math.sqrt(distX * distX + distY * distY);
 
-        return distance <= ((this.radius*this.visionCone.depth) + snakeSection.radius);
+        return distance <= this.visionCone.depth + snakeSection.radius;
     }
 
     insideCone(snakeSection) {
@@ -155,11 +155,11 @@ class Soldier extends Component {
 class Camera extends Component {
     constructor(startOrientation, ...args) {
         super(...args);
-        this.color = '#ee0000';
+        this.color = settings.colors.camera;
         this.alertStatus = 0;
         this.visionCone = {
-            degrees: 40,
-            depth: 30,
+            degrees: settings.visionCones.cameraDegrees,
+            depth: this.floorTile.sideLength * settings.visionCones.cameraTilesDepth,
             currentOrientation: this.calculateOrientation(startOrientation),
             turnSpeed: 1,
             leftBoundary: this.calculateOrientation(startOrientation) - 45,
@@ -190,7 +190,7 @@ class Camera extends Component {
         gameArea.context.moveTo(this.canvasX, this.canvasY);
         this.visionCone.leftEye = (this.visionCone.currentOrientation - (this.visionCone.degrees/2))  / 180 * Math.PI;
         this.visionCone.rightEye = (this.visionCone.currentOrientation + (this.visionCone.degrees/2)) / 180 * Math.PI;
-        gameArea.context.arc(this.canvasX, this.floorTile.canvasY, this.radius*this.visionCone.depth, this.visionCone.leftEye, this.visionCone.rightEye);
+        gameArea.context.arc(this.canvasX, this.canvasY, this.visionCone.depth, this.visionCone.leftEye, this.visionCone.rightEye);
         gameArea.context.lineTo(this.canvasX, this.canvasY);
         gameArea.context.fill();
         gameArea.context.closePath();
@@ -225,7 +225,7 @@ class Camera extends Component {
     }
 
     surveillanceLoop() {
-        if(gameArea.frames % 400 < 200) {
+        if(gameArea.frames % settings.surveillanceLoopFrames < settings.surveillanceLoopFrames/2) {
             if(this.visionCone.currentOrientation >= this.visionCone.leftBoundary)
                 this.turnLeft();
         } else {
@@ -261,7 +261,7 @@ class Camera extends Component {
 
         const distance = Math.sqrt(distX * distX + distY * distY);
 
-        return distance <= ((this.radius*this.visionCone.depth) + snakeSection.radius);
+        return distance <= this.visionCone.depth + snakeSection.radius;
     }
 
     insideCone(snakeSection) {
@@ -283,10 +283,10 @@ class Camera extends Component {
 class Mine extends Component {
     constructor(...args) {
         super(...args);
-        this.color = '#ee0000';
+        this.color = settings.colors.mine;
         this.alertStatus = 0;
         this.visionCone = {
-            depth: 8
+            depth: this.floorTile.sideLength * settings.visionCones.mineTilesDepth
         };
     }
 
@@ -309,7 +309,7 @@ class Mine extends Component {
         }
 
         gameArea.context.moveTo(this.canvasX, this.canvasY);
-        gameArea.context.arc(this.canvasX, this.floorTile.canvasY, this.radius*this.visionCone.depth, 0, 2*Math.PI);
+        gameArea.context.arc(this.canvasX, this.canvasY, this.visionCone.depth, 0, 2*Math.PI);
         gameArea.context.fill();
         gameArea.context.closePath();
     }
@@ -353,7 +353,7 @@ class Mine extends Component {
 
         const distance = Math.sqrt(distX * distX + distY * distY);
 
-        return distance <= ((this.radius*this.visionCone.depth) + snakeSection.radius);
+        return distance <= this.visionCone.depth + snakeSection.radius;
     }
 }
 
@@ -361,11 +361,10 @@ class SnakeSection extends Component {
     constructor(direction, ...args) {
         super(...args);
         this.direction = direction;
-        this.color = '#1abc9c';
     }
 
     draw() {
-        gameArea.snake.sections.indexOf(this) % 2 === 0 ? this.color = '#16a085' : this.color = '#1abc9c';
+        gameArea.snake.sections.indexOf(this) % 2 === 0 ? this.color = settings.colors.snake1 : this.color = settings.colors.snake2;
         this.drawSquare()    ;
     }
 }
@@ -497,8 +496,10 @@ class Snake {
                 keyCard.collect();
         });
 
-        if(newHeadX === gameArea.door.gridX && newHeadY === gameArea.door.gridY) {
-            gameArea.door.unlocked ? gameArea.nextLevel() : gameArea.stop();
+        if(gameArea.door !== undefined) {
+            if(newHeadX === gameArea.door.gridX && newHeadY === gameArea.door.gridY) {
+                gameArea.door.unlocked ? gameArea.nextLevel() : gameArea.stop();
+            }
         }
     }
 
@@ -534,7 +535,7 @@ class FloorTile {
 class KeyCard extends Component {
     constructor(...args) {
         super(...args);
-        this.color = '#fdd835';
+        this.color = settings.colors.keyCard;
         this.collected = false;
     }
 
@@ -555,7 +556,7 @@ class Door extends Component{
     constructor(...args) {
         super(...args);
         this.unlocked = false;
-        this.color = '#ff0000';
+        this.color = settings.colors.doorLocked;
     }
 
     draw() {
@@ -564,6 +565,6 @@ class Door extends Component{
 
     unlock() {
         this.unlocked = true;
-        this.color = '#00ff00';
+        this.color = settings.colors.doorUnlocked;
     }
 }

@@ -2,7 +2,7 @@ levels = [
     {
         levelIndex: 1,
         levelName: "Cargo Bay",
-        snake: {gridX: 21, gridY: 21, direction: 'D', startingSize: 6},
+        snake: {gridX: 6, gridY: 1, direction: 'R', startingSize: 6},
         door: {gridX: 59, gridY: 59},
         enemies: {
             soldiers: [

@@ -10,18 +10,18 @@ const gameArea = {
     door: undefined,
     clearedLevels: 0,
     start: function() {
-        this.canvas.width = 600;
-        this.canvas.height = 600;
+        this.canvas.width = settings.gameWidth;
+        this.canvas.height = settings.gameHeight;
         this.context = this.canvas.getContext('2d');
-        this.canvas.style.backgroundColor = '#2c3e50';
+        this.canvas.style.backgroundColor = settings.colors.background;
         document.body.appendChild(this.canvas);
         
-        this.gridTileSideLength = 10;
+        this.gridTileSideLength = settings.gridTileSideLength;
         this.collectedKeyCards = 0;
         
         gameArea.loadGrid();
         gameArea.loadLevel(levels[this.clearedLevels]);
-        this.interval = setInterval(updateGameArea, 20);
+        this.interval = setInterval(updateGameArea, settings.frameInterval);
     },
     loadGrid: function(){
         this.grid = [];
@@ -101,7 +101,7 @@ function updateGameArea() {
     gameArea.clear();
     
     gameArea.snake.draw();
-    if(gameArea.frames % 5 === 0)
+    if(gameArea.frames % settings.snakeFramesToMove === 0)
         gameArea.snake.moveForward();
 
     gameArea.soldiers.forEach((soldier) => {
