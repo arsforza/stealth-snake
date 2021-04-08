@@ -115,7 +115,15 @@ class Soldier extends Component {
                 }
             }
         });
-        alerts > 0 ? this.alert() : this.idle();
+
+        if(alerts > 0){
+            this.alert()
+            setTimeout(() => {
+                gameArea.endGame(0);
+            }, 100);
+        } else {
+            this.idle();
+        }
     }
 
     insideRadius(snakeSection) {
@@ -240,7 +248,15 @@ class Camera extends Component {
                 }
             }
         });
-        alerts > 0 ? this.alert() : this.idle();
+
+        if(alerts > 0){
+            this.alert()
+            setTimeout(() => {
+                gameArea.endGame(0);
+            }, 100);
+        } else {
+            this.idle();
+        }
     }
 
     insideRadius(snakeSection) {
@@ -325,7 +341,14 @@ class Mine extends Component {
             }
         });
 
-        alerts > 0 ? this.alert() : this.idle();
+        if(alerts > 0){
+            this.alert()
+            setTimeout(() => {
+                gameArea.endGame(0);
+            }, 100);
+        } else {
+            this.idle();
+        }
     }
 
     insideRadius(snakeSection) {
@@ -441,34 +464,34 @@ class Snake {
         }
 
         if(newHeadX < 0 || newHeadX > gameArea.grid[0].length-1 || newHeadY < 0 || newHeadY > gameArea.grid.length-1) {
-            gameArea.stop();
+            gameArea.endGame(1);
             return;
         }
         
         this.sections.forEach((section) => {
             if(section.gridX === newHeadX && section.gridY === newHeadY) {
-                gameArea.stop();
+                gameArea.endGame(1);
                 return;
             }
         });
 
         gameArea.soldiers.forEach((soldier) => {
             if(soldier.gridX === newHeadX && soldier.gridY === newHeadY) {
-                gameArea.stop();
+                gameArea.endGame(1);
                 return;
             }
         });
 
         gameArea.cameras.forEach((camera) => {
             if(camera.gridX === newHeadX && camera.gridY === newHeadY) {
-                gameArea.stop();
+                gameArea.endGame(1);
                 return;
             }
         });
 
         gameArea.mines.forEach((mine) => {
             if(mine.gridX === newHeadX && mine.gridY === newHeadY) {
-                gameArea.stop();
+                gameArea.endGame(1);
                 return;
             }
         });

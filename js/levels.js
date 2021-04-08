@@ -7,8 +7,8 @@ levels = [
         enemies: {
             soldiers: [
                 {gridX: 8, gridY: 10, orientation: 0},
-                {gridX: 50, gridY: 33, orientation: 90},
-                {gridX: 50, gridY: 49, orientation: 270},
+                {gridX: 50, gridY: 32, orientation: 90},
+                {gridX: 50, gridY: 50, orientation: 270},
             ],
             cameras: [
             ],

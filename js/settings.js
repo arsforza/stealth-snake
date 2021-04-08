@@ -20,11 +20,19 @@ settings = {
         camera: '#95a5a6',
         mine: '#95a5a6',
         keyCard: '#f39c12',
-        doorFrame: "#e74c3c",
+        doorFrame: "#7f8c8d",
         doorLocked: '#e74c3c',
         doorUnlocked: '#2ecc71',
         idle: 'rgba(127, 140, 141, 0.35)',
         alert: 'rgba(192, 57, 43, 0.35)',
-
+        gameLostBackground: '#323232',
+        gameLostText1: '#c0392b',
+        gameLostText2: '#ecf0f1',
+        gameWonBackground: '#bdc3c7',
+        gameWonText1: '#27ae60',
+        gameWonText2: '#2c3e50',
+        introBackground: '#323232',
+        introSnakeText: '#3498db',
+        introColText: '#ecf0f1',
     }
 }
