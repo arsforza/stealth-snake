@@ -20,6 +20,7 @@ settings = {
         camera: '#95a5a6',
         mine: '#95a5a6',
         keyCard: '#f39c12',
+        blueprint: '#3498db',
         doorFrame: "#7f8c8d",
         doorLocked: '#e74c3c',
         doorUnlocked: '#2ecc71',
@@ -31,8 +32,10 @@ settings = {
         gameWonBackground: '#bdc3c7',
         gameWonText1: '#27ae60',
         gameWonText2: '#2c3e50',
-        introBackground: '#323232',
+        introBackground: '#ecf0f1',
         introSnakeText: '#3498db',
-        introColText: '#ecf0f1',
+        introColText: '#2c3e50',
+        startScreenBackground: '#ffffff',
+        startScreenText: '#990014',
     }
 }

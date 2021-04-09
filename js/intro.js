@@ -11,7 +11,7 @@ introConversation = [
     },
     {
         speaker: `snake`,
-        text1: `I'm closing in to the enemy base.`,
+        text1: `I'm almost at the enemy base.`,
         text2: ``,
     },
     {
@@ -67,12 +67,7 @@ introConversation = [
     {
         speaker: `col`,
         text1: `If you get detected you're on your own.`,
-        text2: ``,
-    },
-    {
-        speaker: `col`,
-        text1: `There is no rescue plan.`,
-        text2: ``,
+        text2: `There is no rescue plan.`,
     },
     {
         speaker: `snake`,
@@ -91,12 +86,12 @@ introConversation = [
     },
     {
         speaker: `col`,
-        text1: `Thankfully, the nanonmachines you`,
+        text1: `Thankfully, the nanomachines you`,
         text2: `were injected with will help you.`,
     },
     {
         speaker: `col`,
-        text1: `You'll be able to see the enemy vision cone,`,
+        text1: `You'll be able to see the enemy vision field,`,
         text2: `so you can avoid detection.`,
     },
     {
@@ -106,8 +101,13 @@ introConversation = [
     },
     {
         speaker: `col`,
-        text1: `The nanomachines have also a side effect.`,
+        text1: `Unfortunately the nanomachines they also have  a side effect.`,
         text2: `You have to move all the time.`,
+    },
+    {
+        speaker: `col`,
+        text1: `But you can turn using the arrows.`,
+        text2: ``,
     },
     {
         speaker: `snake`,
