@@ -35,7 +35,7 @@ settings = {
         introBackground: '#ecf0f1',
         introSnakeText: '#3498db',
         introColText: '#2c3e50',
-        startScreenBackground: '#ffffff',
+        startScreenBackground: '#ecf0f1',
         startScreenText: '#990014',
     }
 }

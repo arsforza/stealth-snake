@@ -41,8 +41,8 @@ introConversation = [
     },
     {
         speaker: `col`,
-        text1: `They're marked in yellow on your radar.`,
-        text2: ``,
+        text1: `They're marked in yellow on your radar. As well as the door,`,
+        text2: `which will turn green once you collected all the keycards`,
     },
     {
         speaker: `snake`,
@@ -101,7 +101,7 @@ introConversation = [
     },
     {
         speaker: `col`,
-        text1: `Unfortunately the nanomachines they also have  a side effect.`,
+        text1: `Unfortunately, the nanomachines also have a side effect.`,
         text2: `You have to move all the time.`,
     },
     {
