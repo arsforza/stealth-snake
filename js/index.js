@@ -142,7 +142,7 @@ const gameArea = {
                     this.gameOverScreen(message1, message2);
                     break;
                 case 2:
-                    message1 = "YOU ESCAPED!";
+                    message1 = "YOU WON!";
                     message2 = "press ENTER to play again";
                     this.clearedLevels = 0;
                     this.gameWonScreen(message1, message2);
