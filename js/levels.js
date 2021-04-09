@@ -16,8 +16,8 @@ levels = [
             ]
         },
         keyCards: [
-            {gridX: 15, gridY: 10},
-            {gridX: 50, gridY: 41},
+            {gridX: 15, gridY: 10, blueprint: false},
+            {gridX: 50, gridY: 41, blueprint: false},
         ],
     },
     {
@@ -41,9 +41,9 @@ levels = [
             ]
         },
         keyCards: [
-            {gridX: 15, gridY: 15},
-            {gridX: 45, gridY: 20},
-            {gridX: 49, gridY: 49},
+            {gridX: 15, gridY: 15, blueprint: false},
+            {gridX: 45, gridY: 20, blueprint: false},
+            {gridX: 49, gridY: 49, blueprint: false},
         ],
     },
     {
@@ -99,10 +99,10 @@ levels = [
             ]
         },
         keyCards: [
-            {gridX: 15, gridY: 7},
-            {gridX: 51, gridY: 0},
-            {gridX: 20, gridY: 35},
-            {gridX: 15, gridY: 45},
+            {gridX: 15, gridY: 7, blueprint: false},
+            {gridX: 51, gridY: 0, blueprint: false},
+            {gridX: 20, gridY: 35, blueprint: false},
+            {gridX: 15, gridY: 45, blueprint: false},
         ]
     },
     {
@@ -133,11 +133,11 @@ levels = [
             ]
         },
         keyCards: [
-            {gridX: 5, gridY: 5},
-            {gridX: 54, gridY: 10},
-            {gridX: 49, gridY: 49},
-            {gridX: 15, gridY: 44},
-            {gridX: 30, gridY: 30},
+            {gridX: 5, gridY: 5, blueprint: false},
+            {gridX: 54, gridY: 10, blueprint: false},
+            {gridX: 49, gridY: 49, blueprint: false},
+            {gridX: 15, gridY: 44, blueprint: false},
+            {gridX: 30, gridY: 30, blueprint: true},
         ]
     },
 ]

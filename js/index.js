@@ -1,6 +1,10 @@
+const container = document.querySelector('#container');
+const startBtn = document.querySelector('#start-game');
+
 const gameArea = {
     canvas: document.createElement('canvas'),
     frames: 0,
+    interval: undefined,
     soldiers: [],
     cameras: [],
     mines: [],
@@ -11,7 +15,7 @@ const gameArea = {
     clearedLevels: 0,
     collectedKeyCards: 0,
     gameRunning: false,
-    introOver: true,
+    introOver: false,
     introLineIndex: 0,
     introTextY: 5,
     allowInput: false,
@@ -20,7 +24,7 @@ const gameArea = {
         this.canvas.height = settings.gameHeight;
         this.context = this.canvas.getContext('2d');
         this.canvas.style.backgroundColor = settings.colors.background;
-        document.body.appendChild(this.canvas);
+        container.appendChild(this.canvas);
     },
     start: function() {
         this.introOver = true;
@@ -69,7 +73,7 @@ const gameArea = {
         });
 
         level.keyCards.forEach((keyCard) => {
-            this.addKeyCard(new KeyCard(keyCard.gridX, keyCard.gridY));
+            this.addKeyCard(new KeyCard(keyCard.blueprint, keyCard.gridX, keyCard.gridY));
         });
 
         this.addDoor(new Door(level.door.gridX, level.door.gridY));
@@ -177,6 +181,7 @@ const gameArea = {
         this.context.fillText(message2, textX, textY+40);
     },
     introSequence: function() {
+        this.stop();
         this.introOver = false;
         this.allowInput = true;
         this.gameRunning = false;
@@ -188,6 +193,10 @@ const gameArea = {
         
         this.context.font = '16px Courier New';
 
+        this.context.textAlign = 'center';
+        this.context.fillStyle = settings.colors.introColText;
+        this.context.fillText('press ENTER for next line', this.canvas.height / 2,  this.canvas.height-18);
+        this.introTextY = 5;
         this.newIntroLine();
     },
     newIntroLine: function() {
@@ -219,17 +228,27 @@ const gameArea = {
         if(this.introTextY > this.canvas.height - 37) {
             this.introTextY = 5;
             this.introSequence();
+        } else {
+            this.introLineIndex++;
         }
-
-        this.introLineIndex++;
+    },
+    loadStartScreen: function() {
+        this.stop();
+        this.clear();
+        this.context.fillStyle = settings.colors.startScreenBackground;
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        const textX = this.canvas.width/2;
+        const textY = this.canvas.height/2;
+        this.context.fillStyle = settings.colors.startScreenText;
+        this.context.textAlign = 'center';
+        this.context.font = '56px sans';
+        this.context.fillText('SFONAMI', textX, textY);
     }
-
 };
 
 
 gameArea.initCanvas();
-gameArea.introSequence();
-// gameArea.start();
 
 function updateGameArea() {
     gameArea.clear();
@@ -285,6 +304,8 @@ document.addEventListener('keydown', function(event) {
                 gameArea.nextLevel();
                 break;
             case 'Enter':
+                event.preventDefault();
+                event.stopPropagation();
                 if(gameArea.introOver) {
                     if(!gameArea.gameRunning) {
                         gameArea.start();
@@ -295,4 +316,17 @@ document.addEventListener('keydown', function(event) {
                 break;
         }
     }
+});
+
+
+startBtn.addEventListener('mousedown', function() {
+    gameArea.introOver = false,
+    gameArea.gameRunning = false,
+    gameArea.introLineIndex = 0,
+    gameArea.stop();
+    gameArea.clear();
+    gameArea.loadStartScreen();
+    setTimeout(() => {
+        gameArea.introSequence();
+    }, 4000);
 });

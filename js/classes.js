@@ -543,9 +543,12 @@ class FloorTile {
 }
 
 class KeyCard extends Component {
-    constructor(...args) {
+    constructor(isBlueprint, ...args) {
         super(...args);
-        this.color = settings.colors.keyCard;
+        if(isBlueprint)
+            this.color = settings.colors.blueprint;
+        else
+            this.color = settings.colors.keyCard;
         this.collected = false;
     }
 

@@ -1,0 +1,22 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #323232;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+}
+
+#start-game {
+    margin: 20px auto;
+}
+
+canvas {
+    margin: 0 auto;
+}
