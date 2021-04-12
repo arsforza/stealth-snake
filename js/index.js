@@ -258,19 +258,16 @@ function updateGameArea() {
         gameArea.snake.moveForward();
 
     gameArea.soldiers.forEach((soldier) => {
-        soldier.drawVisionCone();
         soldier.draw();
         soldier.surveillanceLoop();        
     });
 
     gameArea.cameras.forEach((camera) => {
-        camera.drawVisionCone();
         camera.draw();
         camera.surveillanceLoop();        
     });
 
     gameArea.mines.forEach((mine) => {
-        mine.drawVisionCone();
         mine.draw();
         mine.surveillanceLoop();        
     });
