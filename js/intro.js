@@ -121,7 +121,7 @@ introConversation = [
     },
     {
         speaker: `col`,
-        text1: `Dont' fail.`,
+        text1: `Don't fail.`,
         text2: ``,
     },
 

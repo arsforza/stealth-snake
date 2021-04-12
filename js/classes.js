@@ -22,28 +22,6 @@ class Component {
         gameArea.context.fillStyle = this.color;
         gameArea.context.fillRect(this.floorTile.canvasX, this.floorTile.canvasY, this.floorTile.sideLength, this.floorTile.sideLength);
     }
-}
-
-class Soldier extends Component {
-    constructor(startOrientation, ...args) {
-        super(...args);
-        this.color = settings.colors.soldier;
-        this.alertStatus = 0;
-        this.visionCone = {
-            degrees: settings.visionCones.soldierDegrees,
-            depth: this.floorTile.sideLength * settings.visionCones.solderTilesDepth,
-            currentOrientation: this.calculateOrientation(startOrientation),
-            turnSpeed: 1,
-            leftBoundary: this.calculateOrientation(startOrientation) - 45,
-            rightBoundary: this.calculateOrientation(startOrientation) + 45,
-            leftEye: 0,
-            rightEye: 0
-        };
-    }
-
-    draw() {
-        this.drawCircle();
-    }
 
     drawVisionCone() {
         gameArea.context.beginPath();
@@ -75,10 +53,9 @@ class Soldier extends Component {
 
     alert() {
         this.alertStatus = 1;
-    }
-
-    searching() {
-        this.alertStatus = 1;
+        setTimeout(() => {
+            gameArea.endGame(0);
+        }, 100);
     }
 
     idle() {
@@ -116,25 +93,21 @@ class Soldier extends Component {
             }
         });
 
-        if(alerts > 0){
-            this.alert()
-            setTimeout(() => {
-                gameArea.endGame(0);
-            }, 100);
-        } else {
+        if(alerts > 0)
+            this.alert();
+        else
             this.idle();
-        }
     }
 
     insideRadius(snakeSection) {
-        const soldierX = this.canvasX;
-        const soldierY = this.canvasY;
+        const enemyX = this.canvasX;
+        const enemyY = this.canvasY;
 
         const snakeX = snakeSection.canvasX;
         const snakeY = snakeSection.canvasY;
 
-        const distX = soldierX - snakeX;
-        const distY = soldierY - snakeY;
+        const distX = enemyX - snakeX;
+        const distY = enemyY - snakeY;
 
         const distance = Math.sqrt(distX * distX + distY * distY);
 
@@ -145,15 +118,38 @@ class Soldier extends Component {
         const leftAngle = this.visionCone.leftEye;
         const rightAngle = this.visionCone.rightEye;
 
-        const soldierX = this.canvasX;
-        const soldierY = this.canvasY;
+        const enemyX = this.canvasX;
+        const enemyY = this.canvasY;
 
         const snakeX = snakeSection.canvasX;
         const snakeY = snakeSection.canvasY;
 
-        const playerAngleToSoldier = Math.atan2(snakeY - soldierY, snakeX - soldierX);
+        const playerAngleToSoldier = Math.atan2(snakeY - enemyY, snakeX - enemyX);
         
         return (Math.min(leftAngle, rightAngle) < playerAngleToSoldier && playerAngleToSoldier < Math.max(leftAngle, rightAngle))
+    }
+}
+
+class Soldier extends Component {
+    constructor(startOrientation, ...args) {
+        super(...args);
+        this.color = settings.colors.soldier;
+        this.alertStatus = 0;
+        this.visionCone = {
+            degrees: settings.visionCones.soldierDegrees,
+            depth: this.floorTile.sideLength * settings.visionCones.solderTilesDepth,
+            currentOrientation: this.calculateOrientation(startOrientation),
+            turnSpeed: 1,
+            leftBoundary: this.calculateOrientation(startOrientation) - 45,
+            rightBoundary: this.calculateOrientation(startOrientation) + 45,
+            leftEye: 0,
+            rightEye: 0
+        };
+    }
+
+    draw() {
+        this.drawVisionCone();
+        this.drawCircle();
     }
 }
 
@@ -175,118 +171,8 @@ class Camera extends Component {
     }
 
     draw() {
+        this.drawVisionCone();
         this.drawCircle();
-    }
-
-    drawVisionCone() {
-        gameArea.context.beginPath();
-        switch(this.alertStatus) {
-            case 0:
-                gameArea.context.fillStyle = settings.colors.idle;
-                break;
-            case 1:
-                gameArea.context.fillStyle = settings.colors.alert;
-                break;
-        }
-
-        gameArea.context.moveTo(this.canvasX, this.canvasY);
-        this.visionCone.leftEye = (this.visionCone.currentOrientation - (this.visionCone.degrees/2))  / 180 * Math.PI;
-        this.visionCone.rightEye = (this.visionCone.currentOrientation + (this.visionCone.degrees/2)) / 180 * Math.PI;
-        gameArea.context.arc(this.canvasX, this.canvasY, this.visionCone.depth, this.visionCone.leftEye, this.visionCone.rightEye);
-        gameArea.context.lineTo(this.canvasX, this.canvasY);
-        gameArea.context.fill();
-        gameArea.context.closePath();
-    }
-
-    calculateOrientation(orientation) {
-        let degrees = orientation;
-        if(orientation > 180)
-            degrees = orientation-360;
-
-        return degrees;
-    }
-
-    alert() {
-        this.alertStatus = 1;
-    }
-
-    searching() {
-        this.alertStatus = 1;
-    }
-
-    idle() {
-        this.alertStatus = 0;
-    }
-
-    turnLeft() {
-        this.visionCone.currentOrientation -= this.visionCone.turnSpeed;
-    }
-
-    turnRight() {
-        this.visionCone.currentOrientation += this.visionCone.turnSpeed;
-    }
-
-    surveillanceLoop() {
-        if(gameArea.frames % settings.surveillanceLoopFrames < settings.surveillanceLoopFrames/2) {
-            if(this.visionCone.currentOrientation >= this.visionCone.leftBoundary)
-                this.turnLeft();
-        } else {
-            if(this.visionCone.currentOrientation <= this.visionCone.rightBoundary)
-                this.turnRight();
-        }
-
-        this.surveillanceReport();
-    }
-
-    surveillanceReport() {
-        let alerts = 0;
-
-        gameArea.snake.sections.forEach((section) => {
-            if(this.insideRadius(section)) {
-                if(this.insideCone(section)) {
-                    alerts++;
-                }
-            }
-        });
-
-        if(alerts > 0){
-            this.alert()
-            setTimeout(() => {
-                gameArea.endGame(0);
-            }, 100);
-        } else {
-            this.idle();
-        }
-    }
-
-    insideRadius(snakeSection) {
-        const cameraX = this.canvasX;
-        const cameraY = this.canvasY;
-
-        const snakeX = snakeSection.canvasX;
-        const snakeY = snakeSection.canvasY;
-
-        const distX = cameraX - snakeX;
-        const distY = cameraY - snakeY;
-
-        const distance = Math.sqrt(distX * distX + distY * distY);
-
-        return distance <= this.visionCone.depth + snakeSection.radius;
-    }
-
-    insideCone(snakeSection) {
-        const leftAngle = this.visionCone.leftEye;
-        const rightAngle = this.visionCone.rightEye;
-
-        const cameraX = this.canvasX;
-        const cameraY = this.canvasY;
-
-        const snakeX = snakeSection.canvasX;
-        const snakeY = snakeSection.canvasY;
-
-        const playerAngleToCamera = Math.atan2(snakeY - cameraY, snakeX - cameraX);
-        
-        return (Math.min(leftAngle, rightAngle) < playerAngleToCamera && playerAngleToCamera < Math.max(leftAngle, rightAngle))
     }
 }
 
@@ -301,6 +187,7 @@ class Mine extends Component {
     }
 
     draw() {
+        this.drawVisionCone();
         this.drawCircle();
     }
 
@@ -321,17 +208,6 @@ class Mine extends Component {
         gameArea.context.closePath();
     }
 
-    alert() {
-        this.alertStatus = 1;
-    }
-
-    idle() {
-        this.alertStatus = 0;
-    }
-    surveillanceLoop() {
-        this.surveillanceReport();
-    }
-
     surveillanceReport() {
         let alerts = 0;
 
@@ -341,29 +217,10 @@ class Mine extends Component {
             }
         });
 
-        if(alerts > 0){
-            this.alert()
-            setTimeout(() => {
-                gameArea.endGame(0);
-            }, 100);
-        } else {
+        if(alerts > 0)
+            this.alert();
+        else
             this.idle();
-        }
-    }
-
-    insideRadius(snakeSection) {
-        const mineX = this.canvasX;
-        const mineY = this.canvasY;
-
-        const snakeX = snakeSection.canvasX;
-        const snakeY = snakeSection.canvasY;
-
-        const distX = mineX - snakeX;
-        const distY = mineY - snakeY;
-
-        const distance = Math.sqrt(distX * distX + distY * distY);
-
-        return distance <= this.visionCone.depth + snakeSection.radius;
     }
 }
 
