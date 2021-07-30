@@ -1,4 +1,4 @@
-settings = {
+const settings = {
     gameWidth: 600,
     gameHeight: 600,
     gridTileSideLength: 10,
@@ -39,3 +39,5 @@ settings = {
         startScreenText: '#990014',
     }
 }
+
+export { settings };

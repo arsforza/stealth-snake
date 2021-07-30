@@ -1,4 +1,4 @@
-levels = [
+const levels = [
     {
         levelIndex: 1,
         levelName: "Cargo Bay",
@@ -141,3 +141,5 @@ levels = [
         ]
     },
 ]
+
+export { levels };
