@@ -1,3 +1,8 @@
+import { Soldier, Camera, Mine, Snake, FloorTile, KeyCard, Door } from './classes.js';
+import { settings } from './settings.js';
+import { levels } from './levels.js';
+import { introConversation } from './intro.js';
+
 const container = document.querySelector('#container');
 const startBtn = document.querySelector('#start-game');
 
@@ -126,8 +131,8 @@ const gameArea = {
             this.resetComponents();
             this.clear();
 
-            message1 = "YOU WERE DETECTED";
-            message2 = "press ENTER to start from level 1";
+            let message1 = "YOU WERE DETECTED";
+            let message2 = "press ENTER to start from level 1";
 
             switch(endType) {
                 case 0:
@@ -327,3 +332,5 @@ startBtn.addEventListener('mousedown', function() {
         gameArea.introSequence();
     }, 4000);
 });
+
+export { gameArea };

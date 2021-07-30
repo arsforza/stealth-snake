@@ -1,3 +1,6 @@
+import { gameArea } from './index.js';
+import { settings } from './settings.js';
+
 class Component {
     constructor(gridX, gridY) {
         this.floorTile = gameArea.grid[gridY][gridX];
@@ -438,3 +441,5 @@ class Door extends Component{
         this.color = settings.colors.doorUnlocked;
     }
 }
+
+export { Soldier, Camera, Mine, Snake, FloorTile, KeyCard, Door };

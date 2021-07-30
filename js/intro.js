@@ -1,4 +1,4 @@
-introConversation = [
+const introConversation = [
     {
         speaker: `snake`,
         text1: `Colonel, are you there?`,
@@ -126,3 +126,5 @@ introConversation = [
     },
 
 ]
+
+export { introConversation };
